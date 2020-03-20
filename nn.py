@@ -3,7 +3,7 @@ from sklearn import metrics
 import numpy as np 
 
 class NN(nn.Module):
-    def __init__(self, model, optimizer, loss_function, lr_scheduler, config):
+    def __init__(self, model, optimizer, loss_function, lr_scheduler, metric, config):
         super(NN, self).__init__()
         # Set up the model
         self.model = model
@@ -16,6 +16,9 @@ class NN(nn.Module):
 
         # Set up the learning rate scheduler
         self.lr_scheduler = lr_scheduler(self.optimizer, config['lr_scheduler']['milestones'], config['lr_scheduler']['gamma']) if lr_scheduler is not None else None
+
+        # Set up the metric to evaluate
+        self.metric = metric
     
     def forward(self, x):
         return self.model(x)
@@ -56,7 +59,7 @@ class NN(nn.Module):
             return 0
 
         y = y.detach().numpy()
-        f1 = metrics.f1_score(y, y_pred, average=average, labels=np.unique(y_pred))
+        f1 = self.metric(y, y_pred, average=average, labels=np.unique(y_pred))
 
         return f1
     
@@ -65,4 +68,4 @@ class NN(nn.Module):
             'optimizer': self.optimizer.state_dict(),
             'weights': self.state_dict()
         }
-        torch.save(data, '/checkpoint.pth.tar')
+        torch.save(data, config['save_path'])

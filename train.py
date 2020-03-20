@@ -4,18 +4,21 @@ from model import net
 from nn import NN
 from dataset import CustomDataset
 from data_handler import DataHandler
-from parameters import *
+from parameters import optimizer, loss_function, lr_scheduler, metric, config
+
+model = 0
 
 def run():
+    global model
     # Create dataset
-    custom_dataset = CustomDataset()
+    custom_dataset = CustomDataset(config)
     training_loader, validation_loader, test_loader = custom_dataset.get_loaders(config)
 
     # Create the neural network
-    model = NN(net, optimizer, loss_function, lr_scheduler, config)
+    model = NN(net, optimizer, loss_function, lr_scheduler, metric, config)
 
     # Create the data handler
-    data_handler = DataHandler(training_loader is not None, validation_loader is not None, test_loader is not None)
+    data_handler = DataHandler(training_loader, validation_loader, test_loader)
 
     for epoch in range(config['epochs']):
         # Training
@@ -24,9 +27,9 @@ def run():
             x, y = data
             y_hat = model(x)
             loss = model.backpropagate(y_hat, y)
-            metric = model.evaluate(y_hat, y)
+            result = model.evaluate(y_hat, y)
             data_handler.train_loss.append(loss)
-            data_handler.train_metric.append(metric)
+            data_handler.train_metric.append(result)
 
         with torch.no_grad():
             # Validating
@@ -35,9 +38,9 @@ def run():
                 x, y = data
                 y_hat = model(x)
                 _, loss = model.calculate_loss(y_hat, y)
-                metric = model.evaluate(y_hat, y)
+                result = model.evaluate(y_hat, y)
                 data_handler.valid_loss.append(loss)
-                data_handler.valid_metric.append(metric)
+                data_handler.valid_metric.append(result)
 
             # Testing
             if test_loader is not None:
@@ -45,14 +48,12 @@ def run():
                     x, y = data
                     y_hat = model(x)
                     _, loss = model.calculate_loss(y_hat, y)
-                    metric = model.evaluate(y_hat, y)
+                    result = model.evaluate(y_hat, y)
                     data_handler.test_loss.append(loss)
-                    data_handler.test_metric.append(metric)
+                    data_handler.test_metric.append(result)
 
         model.lr_scheduler_step()
         data_handler.epoch_end(epoch, model.get_lr())
-        if epoch == 5:
-            data_handler.plot(loss=config['plot']['loss'], metric=config['plot']['metric'])
     data_handler.plot(loss=config['plot']['loss'], metric=config['plot']['metric'])
 
 if __name__ == '__main__':
@@ -60,5 +61,4 @@ if __name__ == '__main__':
     try:
         run()
     except KeyboardInterrupt:
-        # Save model here
-        pass
+        model.save()

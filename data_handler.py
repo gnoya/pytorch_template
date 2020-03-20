@@ -1,11 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+# TODO: multiple metrics support
 class DataHandler():
-    def __init__(self, train, valid, test):
-        self.train = train
-        self.valid = valid
-        self.test = test
+    def __init__(self, train_loader, valid_loader, test_loader):
+        self.train = train_loader is not None
+        self.valid = valid_loader is not None
+        self.test = test_loader is not None
 
         self.train_loss = []
         self.valid_loss = []
@@ -36,7 +37,6 @@ class DataHandler():
             print('Validation | Cost: {0:.4f} | Metric: {1:.4f}'.format(self.total_valid_loss[-1], self.total_valid_metric[-1]))
         if self.test:
             print('Test       | Cost: {0:.4f} | Metric: {1:.4f}'.format(self.total_test_loss[-1], self.total_test_metric[-1]))
-        print(self.total_train_metric)
         
     def mean_data(self):
         if self.train:

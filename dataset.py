@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 
 # Edit this class in order to match your dataset
 class CustomDataset(Dataset):
-    def __init__(self):
+    def __init__(self, config):
         dataset = np.genfromtxt(config['dataset']['train_set'], delimiter=',', dtype=str)
 
         # Remove header and first column
