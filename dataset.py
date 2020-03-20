@@ -4,9 +4,10 @@ from torch.utils.data import Dataset
 from torch.utils.data import random_split
 from torch.utils.data import DataLoader
 
+# Edit this class in order to match your dataset
 class CustomDataset(Dataset):
-    def __init__(self, path):
-        dataset = np.genfromtxt(path, delimiter=',', dtype=str)
+    def __init__(self):
+        dataset = np.genfromtxt(config['dataset']['train_set'], delimiter=',', dtype=str)
 
         # Remove header and first column
         dataset = dataset[1:, 1:]
@@ -30,7 +31,7 @@ class CustomDataset(Dataset):
 
         return x, y
 
-    # This functions works only if the whole dataset (every set) is in one file
+    # This function works only if the whole dataset (every set) is in one file
     def get_loaders(self, config):
         samples = self.length
         training_set_len = int(config['dataset']['train_set_len'] * samples)
