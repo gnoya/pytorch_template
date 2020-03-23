@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch
 from model import net
 from nn import NN
-from dataset import CustomDataset
+from dataset import TemplateDataset
 from data_handler import DataHandler
 from parameters import optimizer, loss_function, lr_scheduler, metric, config
 
@@ -11,8 +11,8 @@ model = 0
 def run():
     global model
     # Create dataset
-    custom_dataset = CustomDataset(config)
-    training_loader, validation_loader, test_loader = custom_dataset.get_loaders(config)
+    template_dataset = TemplateDataset(config)
+    training_loader, validation_loader, test_loader = template_dataset.get_loaders()
 
     # Create the neural network
     model = NN(net, optimizer, loss_function, lr_scheduler, metric, config)
@@ -32,15 +32,16 @@ def run():
             data_handler.train_metric.append(result)
 
         with torch.no_grad():
-            # Validating
             model.eval()
-            for i, data in enumerate(validation_loader, 0):
-                x, y = data
-                y_hat = model(x)
-                _, loss = model.calculate_loss(y_hat, y)
-                result = model.evaluate(y_hat, y)
-                data_handler.valid_loss.append(loss)
-                data_handler.valid_metric.append(result)
+            # Validating
+            if validation_loader is not None:
+                for i, data in enumerate(validation_loader, 0):
+                    x, y = data
+                    y_hat = model(x)
+                    _, loss = model.calculate_loss(y_hat, y)
+                    result = model.evaluate(y_hat, y)
+                    data_handler.valid_loss.append(loss)
+                    data_handler.valid_metric.append(result)
 
             # Testing
             if test_loader is not None:
@@ -61,4 +62,4 @@ if __name__ == '__main__':
     try:
         run()
     except KeyboardInterrupt:
-        model.save()
+        model.save(config)

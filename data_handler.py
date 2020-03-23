@@ -30,7 +30,7 @@ class DataHandler():
         self.mean_data()
         self.reset_data()
 
-        print('\nEpoch {0} | Learning rate: {1:.4f}'.format(epoch, lr))
+        print('\nEpoch {0} | Learning rate: {1:.8f}'.format(epoch, lr))
         if self.train:
             print('Training   | Cost: {0:.4f} | Metric: {1:.4f}'.format(self.total_train_loss[-1], self.total_train_metric[-1]))
         if self.valid:

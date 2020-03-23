@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 from sklearn import metrics
 import numpy as np 
@@ -63,7 +64,7 @@ class NN(nn.Module):
 
         return f1
     
-    def save(self):
+    def save(self, config):
         data = {
             'optimizer': self.optimizer.state_dict(),
             'weights': self.state_dict()
