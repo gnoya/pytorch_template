@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from sklearn import metrics
 import numpy as np
+import torch.nn.functional as F
 
 class NN(nn.Module):
     def __init__(self, model, optimizer, loss_function, lr_scheduler, metric, device, config):
