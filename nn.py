@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
 from sklearn import metrics
-import numpy as np 
+import numpy as np
 
 class NN(nn.Module):
-    def __init__(self, model, optimizer, loss_function, lr_scheduler, metric, config):
+    def __init__(self, model, optimizer, loss_function, lr_scheduler, metric, device, config):
         super(NN, self).__init__()
         # Set up the model
         self.model = model
@@ -20,7 +20,10 @@ class NN(nn.Module):
 
         # Set up the metric to evaluate
         self.metric = metric
-    
+
+        # Save the model device
+        self.device = device
+
     def forward(self, x):
         return self.model(x)
 
@@ -47,6 +50,9 @@ class NN(nn.Module):
 
     def evaluate(self, y_pred, y):
         # TODO: optimize this function
+        if str(self.device) == 'cuda':
+            y_pred = y_pred.cpu()
+            y = y.cpu()
         average = None
         if str(self.loss_function) == 'CrossEntropyLoss()':
             y_pred = F.softmax(y_pred)
@@ -63,7 +69,7 @@ class NN(nn.Module):
         f1 = self.metric(y, y_pred, average=average, labels=np.unique(y_pred))
 
         return f1
-    
+
     def save(self, config):
         data = {
             'optimizer': self.optimizer.state_dict(),

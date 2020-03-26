@@ -10,12 +10,14 @@ model = 0
 
 def run():
     global model
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
     # Create dataset
     template_dataset = TemplateDataset(config)
     training_loader, validation_loader, test_loader = template_dataset.get_loaders()
 
     # Create the neural network
-    model = NN(net, optimizer, loss_function, lr_scheduler, metric, config)
+    model = NN(net, optimizer, loss_function, lr_scheduler, metric, device, config).to(device)
 
     # Create the data handler
     data_handler = DataHandler(training_loader, validation_loader, test_loader)
@@ -25,6 +27,7 @@ def run():
         model.train()
         for i, data in enumerate(training_loader, 0):
             x, y = data
+            x, y = x.to(device), y.to(device)
             y_hat = model(x)
             loss = model.backpropagate(y_hat, y)
             result = model.evaluate(y_hat, y)
@@ -37,6 +40,7 @@ def run():
             if validation_loader is not None:
                 for i, data in enumerate(validation_loader, 0):
                     x, y = data
+                    x, y = x.to(device), y.to(device)
                     y_hat = model(x)
                     _, loss = model.calculate_loss(y_hat, y)
                     result = model.evaluate(y_hat, y)
@@ -47,6 +51,7 @@ def run():
             if test_loader is not None:
                 for i, data in enumerate(test_loader, 0):
                     x, y = data
+                    x, y = x.to(device), y.to(device)
                     y_hat = model(x)
                     _, loss = model.calculate_loss(y_hat, y)
                     result = model.evaluate(y_hat, y)
