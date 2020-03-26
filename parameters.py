@@ -16,12 +16,12 @@ config = {
         'gamma': 0.333
     },
     'dataset': {
-        # If the dataset is in just one file
+        # If the dataset is in just one file. Default values: None
         'whole_set': './dataset/shuffled_sonar.csv',
         'train_set_len': 0.7,
         'valid_set_len': 0.3,
         'test_set_len': 0,
-        # If the dataset is in multiple files
+        # If the dataset is in multiple files. Default values: None
         'train_set': None,
         'valid_set': None,
         'test_set': None
